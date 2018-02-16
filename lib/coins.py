@@ -1326,3 +1326,41 @@ class Bitcore(BitcoinMixin, Coin):
     TX_PER_BLOCK = 2
     RPC_PORT = 8556
 
+
+class LtcsilverTestnet(EquihashMixin, BitcoinMixin, Litecoin):
+    NAME = "LtcsilverTestnet"
+    SHORTNAME = "LTT"
+    NET = "testnet"
+    XPUB_VERBYTES = bytes.fromhex("0436ef7d")
+    XPRV_VERBYTES = bytes.fromhex("0436f6e1")
+    P2PKH_VERBYTE = bytes.fromhex("6f")
+    P2SH_VERBYTES = [bytes.fromhex("3a"), bytes.fromhex("c4")]
+    WIF_BYTE = bytes.fromhex("ef")
+    GENESIS_HASH = ('4966625a4b2851d9fdee139e56211a0d'
+                    '88575f59ed816ff5e6a63deb4e3e29a0')
+    TX_COUNT = 21772
+    TX_COUNT_HEIGHT = 20800
+    TX_PER_BLOCK = 2
+    RPC_PORT = 19449
+    REORG_LIMIT = 4000
+    FORK_HEIGHT = 300000
+    PEER_DEFAULT_PORTS = {'t': '51001', 's': '51002'}
+    PEERS = [
+    ]
+    counter = 0
+    DESERIALIZER = lib_tx.DeserializerEquihashSegWit
+
+    @classmethod
+    def header_hash(cls, header):
+        height, = struct.unpack('<I', header[68:72])
+        blockhash = ""
+        if height >= cls.FORK_HEIGHT:
+            blockhash = double_sha256(header)
+        else:
+            blockhash = double_sha256(header[:68] + header[100:112])
+
+        print("height: ", cls.counter)
+        print("blockhash: ", hash_to_str(blockhash))
+        print("block: ", hash_to_str(header))
+        cls.counter = cls.counter + 1
+        return blockhash
